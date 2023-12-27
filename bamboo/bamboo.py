@@ -9,40 +9,50 @@ class HTTPLoadTester:
         self.num_requests = num_requests
         self.num_concurrent = num_concurrent
         self.results = []
+        self.errors = []
 
     def make_request(self, url):
-        start_time = time.time()
-        try:
-            response = requests.get(url)
-            status_code = response.status_code
-            print(status_code)
-        except requests.RequestException:
-            status_code = 500
-        end_time = time.time()
-
+        times = []
+        status_codes = []
+        for _ in range(self.num_requests):
+            try:
+                start_time = time.time()
+                response = requests.get(url)
+                end_time = time.time()
+                times.append({
+                    "total_time": end_time - start_time,
+                    "time_to_first_byte": response.elapsed.total_seconds(),
+                    "time_to_last_byte": end_time - response.elapsed.total_seconds()         
+                })
+                status_codes.append(response.status_code)
+            except requests.RequestException:
+                status_codes.append(500)
+        # print(status_codes)
         return {
             "url": url,
-            "status_code": status_code,
-            "total_time": end_time - start_time,
-            "time_to_first_byte": response.elapsed.total_seconds(),
-            "time_to_last_byte": end_time - response.elapsed.total_seconds()
+            "times": times,
+            "status_codes": status_codes
         }
 
     def run(self):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.num_concurrent) as executor:
-            future_to_url = {executor.submit(self.make_request, url): url for url in self.urls}
-
-            for future in concurrent.futures.as_completed(future_to_url):
-                url = future_to_url[future]
+            tasks = [executor.submit(self.make_request, url) for url in self.urls]
+            for future in concurrent.futures.as_completed(tasks):
                 try:
-                    result = future.result()
-                    self.results.append(result)
+                    self.results.append(future.result())
                 except Exception as e:
-                    print(f"Error fetching {url}: {e}")
+                    self.errors.append(str(e))
 
     def print_results_summary(self):
-        # Process and print results summary here
-        pass
+        for result in self.results:
+            url = result["url"]
+            avg_time = sum(d['total_time'] for d in result["times"]) / len(result["times"])
+            print(f"URL: {url}, Average Time: {avg_time:.2f}s, Status Codes: {result['status_codes']}")
+        if self.errors:
+            print("\nErrors:")
+            for error in self.errors:
+                print(error)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Bamboo - HTTP(S) Load Tester")
@@ -57,7 +67,7 @@ def main():
         urls = [args.url]
     elif args.file:
         with open(args.file, "r") as file:
-            urls = [line.strip() for line in file.readlines()]
+            urls = file.read().splitlines()
     else:
         print("Please provide a URL or a file containing URLs.")
         return
