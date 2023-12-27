@@ -6,45 +6,55 @@ from prettytable import PrettyTable
 
 
 class HTTPLoadTester:
-    def __init__(self, urls, num_requests, num_concurrent):
+    def __init__(self, urls, num_requests, num_concurrent, debug=False):
         self.urls = urls
         self.num_requests = num_requests
         self.num_concurrent = num_concurrent
+        self.session = requests.Session()  # Use a session object for connection pooling
         self.results = []
         self.errors = []
+        self.debug = debug
 
     def make_request(self, url):
         times = []
         status_codes = []
+        error_count = 0
+
         for _ in range(self.num_requests):
             try:
                 start_time = time.time()
-                response = requests.get(url)
-                end_time = time.time()
-                times.append(
-                    {
-                        "total_time": end_time - start_time,
-                        "time_to_first_byte": response.elapsed.total_seconds(),
-                        "time_to_last_byte": end_time
-                        - response.elapsed.total_seconds(),
-                    }
-                )
+                response = self.session.get(url)
+                times.append(time.time() - start_time)
                 status_codes.append(response.status_code)
             except requests.RequestException:
                 status_codes.append(500)
-        # print(status_codes)
-        return {"url": url, "times": times, "status_codes": status_codes}
+                error_count += 1
+
+        return {
+            "url": url,
+            "times": times,
+            "status_codes": status_codes,
+            "error_count": error_count,
+        }
 
     def run(self):
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.num_concurrent
         ) as executor:
-            tasks = [executor.submit(self.make_request, url) for url in self.urls]
+            tasks = {executor.submit(self.make_request, url): url for url in self.urls}
             for future in concurrent.futures.as_completed(tasks):
+                url = tasks[future]
                 try:
-                    self.results.append(future.result())
+                    result = future.result()
+                    if self.debug:
+                        print(f"Result for {url}: {result}")
+                    self.results.append(result)
                 except Exception as e:
-                    self.errors.append(str(e))
+                    if self.debug:
+                        print(f"Error fetching {url}: {str(e)}")
+                    self.results.append(
+                        {"url": url, "times": [], "status_codes": [], "error_count": 1}
+                    )
 
     def print_results_summary(self):
         table = PrettyTable()
@@ -63,13 +73,15 @@ class HTTPLoadTester:
 
         for result in self.results:
             url = result["url"]
-            times = [d["total_time"] for d in result["times"]]
-            avg_time = sum(times) / len(times)
-            min_time = min(times)
-            max_time = max(times)
-            num_requests = len(times)
-            status_codes = ", ".join(map(str, set(result["status_codes"])))
+            if result["times"]:
+                avg_time = sum(result["times"]) / len(result["times"])
+                min_time = min(result["times"])
+                max_time = max(result["times"])
+            else:
+                avg_time = min_time = max_time = "N/A"
 
+            num_requests = len(result["times"])
+            status_codes = ", ".join(map(str, set(result["status_codes"])))
             # Counting errors
             error_counts = result.get("errors", {}).get("count", 0)
 
@@ -91,17 +103,9 @@ class HTTPLoadTester:
 
 
 def main():
-    # Set DEBUG based on the interactive flag
-    global DEBUG
     parser = argparse.ArgumentParser(description="Bamboo - HTTP(S) Load Tester")
     parser.add_argument("-u", "--url", help="URL to test")
-    parser.add_argument(
-        "-i",
-        "--interactive",
-        action="store_true",
-        help="Enable interactive mode with DEBUG output",
-    )
-
+    parser.add_argument("--debug", action="store_true", help="Enable DEBUG output")
     parser.add_argument(
         "-n", "--num-requests", type=int, default=5, help="Number of requests to make"
     )
@@ -116,7 +120,7 @@ def main():
 
     args = parser.parse_args()
 
-    DEBUG = args.interactive
+    DEBUG = args.debug
     if DEBUG:
         print("Debug mode is ON")
         print(f"Args: {args}")
