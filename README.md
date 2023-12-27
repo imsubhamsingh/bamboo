@@ -16,12 +16,18 @@ Welcome to **Bamboo**, a lightweight and efficient tool for performing load test
 ## Requirements
 
 - Python 3.10 or higher
-- Poetry ```curl -sSL https://install.python-poetry.org | python3 - ```
+- Poetry (can be installed via curl)
 - An internet connection
+
+To install Poetry, run the following command in your terminal:
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
 
 ## Installation
 
-Before running the tool, ensure you have Python installed on your system. You can then install the required packages using pip:
+Before running the tool, ensure you have Python installed on your system. You can then install the required packages using poetry:
 
 ```bash
 poetry install
