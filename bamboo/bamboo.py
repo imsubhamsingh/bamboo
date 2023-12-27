@@ -15,7 +15,7 @@ class HTTPLoadTester:
         self.errors = []
         self.debug = debug
 
-    def make_request(self, url):
+    def make_request(self, url, method="GET", data=None, headers=None):
         times = []
         status_codes = []
         error_count = 0
@@ -23,24 +23,34 @@ class HTTPLoadTester:
         for _ in range(self.num_requests):
             try:
                 start_time = time.time()
-                response = self.session.get(url)
+                response = self.session.request(
+                    method,
+                    url,
+                    data=data,
+                    headers=headers,
+                    timeout=10,  # Timeout after 10 seconds
+                )
                 times.append(time.time() - start_time)
                 status_codes.append(response.status_code)
-            except requests.RequestException:
-                status_codes.append(500)
+            except requests.RequestException as e:
+                status_codes.append(None)
                 error_count += 1
+                if self.debug:
+                    print(f"Request Error: {str(e)}")
 
         return {
             "url": url,
+            "methods": method,
             "times": times,
             "status_codes": status_codes,
             "error_count": error_count,
         }
 
-    def run(self):
+    def run(self, method="GET", data=None, headers=None):
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.num_concurrent
         ) as executor:
+            # Wrap the make_request arguments into a tuple for each URL
             tasks = {executor.submit(self.make_request, url): url for url in self.urls}
             for future in concurrent.futures.as_completed(tasks):
                 url = tasks[future]
@@ -53,7 +63,13 @@ class HTTPLoadTester:
                     if self.debug:
                         print(f"Error fetching {url}: {str(e)}")
                     self.results.append(
-                        {"url": url, "times": [], "status_codes": [], "error_count": 1}
+                        {
+                            "url": url,
+                            "method": method,
+                            "times": [],
+                            "status_codes": [],
+                            "error_count": 1,
+                        }
                     )
 
     def print_results_summary(self):
@@ -117,6 +133,14 @@ def main():
         help="Number of concurrent requests",
     )
     parser.add_argument("-f", "--file", help="File containing URLs to test")
+    parser.add_argument("-m", "--method", default="GET", help="HTTP method to use")
+    parser.add_argument("--data", help="Data to send with the request")
+    parser.add_argument(
+        "--headers", nargs="+", help="Custom HTTP headers to set, format: key:value"
+    )
+    parser.add_argument(
+        "--no-verify", action="store_false", help="Disable SSL certificate verification"
+    )
 
     args = parser.parse_args()
 
@@ -136,11 +160,21 @@ def main():
         print("Please provide a URL or a file containing URLs.")
         return
 
+    headers = (
+        {k: v for k, v in (h.split(":") for h in args.headers)}
+        if args.headers
+        else None
+    )
+
     if DEBUG:
         print(f"URLs: {urls}")
 
-    tester = HTTPLoadTester(urls, args.num_requests, args.num_concurrent)
-    tester.run()
+    tester = HTTPLoadTester(urls, args.num_requests, args.num_concurrent, DEBUG)
+
+    # Disabling SSL verification if no-verify flag is used
+    tester.session.verify = args.no_verify
+
+    tester.run(method=args.method, data=args.data, headers=headers)
     tester.print_results_summary()
 
 
