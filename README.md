@@ -1,4 +1,4 @@
-# Bamboo - HTTP(S) Load Tester
+# :bamboo: Bamboo - HTTP(S) Load Tester
 
 Welcome to **Bamboo**, a lightweight and efficient tool for performing load testing on your HTTP and HTTPS services. This Python-based command line utility assists in bombarding your web applications with requests, helping you gauge performance under stress.
 
