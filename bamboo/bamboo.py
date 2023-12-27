@@ -2,6 +2,7 @@ import argparse
 import concurrent.futures
 import time
 import requests
+from prettytable import PrettyTable
 
 
 class HTTPLoadTester:
@@ -46,25 +47,52 @@ class HTTPLoadTester:
                     self.errors.append(str(e))
 
     def print_results_summary(self):
+        table = PrettyTable()
+        
+        # Updating field names to include more details
+        field_names = [
+            "URL",
+            "Average Time (s)",
+            "Min Time (s)",
+            "Max Time (s)",
+            "Requests",
+            "Status Codes",
+            "Error Counts"
+        ]
+        table.field_names = field_names
+        
         for result in self.results:
             url = result["url"]
-            avg_time = sum(d["total_time"] for d in result["times"]) / len(
-                result["times"]
-            )
-            print(
-                f"URL: {url}, Average Time: {avg_time:.2f}s, Status Codes: {result['status_codes']}"
-            )
-        if self.errors:
-            print("\nErrors:")
-            for error in self.errors:
-                print(error)
+            times = [d["total_time"] for d in result["times"]]
+            avg_time = sum(times) / len(times)
+            min_time = min(times)
+            max_time = max(times)
+            num_requests = len(times)
+            status_codes = ', '.join(map(str, set(result["status_codes"])))
+            
+            # Counting errors
+            error_counts = result.get("errors", {}).get("count", 0)
+
+            # Adding a row for each result with the new details
+            table.add_row([
+                url,
+                f"{avg_time:.2f}",
+                f"{min_time:.2f}",
+                f"{max_time:.2f}",
+                num_requests,
+                status_codes,
+                error_counts
+            ])
+            
+        # Printing the table with added details
+        print(table)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Bamboo - HTTP(S) Load Tester")
     parser.add_argument("-u", "--url", help="URL to test")
     parser.add_argument(
-        "-n", "--num-requests", type=int, default=10, help="Number of requests to make"
+        "-n", "--num-requests", type=int, default=5, help="Number of requests to make"
     )
     parser.add_argument(
         "-c",
@@ -76,12 +104,14 @@ def main():
     parser.add_argument("-f", "--file", help="File containing URLs to test")
 
     args = parser.parse_args()
+    print(args)
 
     if args.url:
         urls = [args.url]
     elif args.file:
         with open(args.file, "r") as file:
             urls = file.read().splitlines()
+            print(urls)
     else:
         print("Please provide a URL or a file containing URLs.")
         return

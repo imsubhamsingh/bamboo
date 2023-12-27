@@ -10,6 +10,7 @@ python = "^3.10"
 tdqm = "^0.0.1"
 requests = "^2.31.0"
 ruff = "^0.1.9"
+prettytable = "^3.9.0"
 
 
 [build-system]
