@@ -22,6 +22,19 @@ You can install **Bambo** directly from PyPI:
 ```bash
 pip install bambo
 ```
+Usage as a Library
+
+```bash
+# example.py
+from bambo import HTTPLoadTester
+tester = HTTPLoadTester(['http://example.com'], 5, 2)
+
+# Start the test.
+tester.run()
+results = tester.results
+print(results)
+```
+
 Usage:  bambo <--parameters>
 
 ```bash
@@ -56,14 +69,14 @@ poetry shell
 To use Bamboo, simply invoke the script from the command line with the desired options.
 
 ```bash
-python bambo/bamboo.py < --parameters >
+python bambo/cli.py < --parameters >
 ```
 
 ### Basic Example
 
 Test a single URL with the default number of requests (5):
 ```bash
-python bamboo/bamboo.py -u "https://example.com"
+python bambo/cli.py -u "https://example.com"
 ```
 or
 ```
@@ -74,42 +87,42 @@ bambo -u "https://example.com"
 
 Specify the number of requests to send:
 ```bash
-python bamboo/bamboo.py -u "https://example.com" -n 100
+python bambo/cli.py -u "https://example.com" -n 100
 ```
 
 ### Concurrent Requests
 
 Set the number of concurrent requests:
 ```bash
-python bamboo/bamboo.py -u "https://example.com" -n 100 -c 10
+python bambo/cli.py -u "https://example.com" -n 100 -c 10
 ```
 
 ### Testing Multiple URLs from File
 
 You can test multiple URLs by providing a file (one URL per line):
 ```bash
-python bamboo/bamboo.py -f urls.txt
+python bambo/cli.py -f urls.txt
 ```
 
 ### Setting Custom Headers
 
 Include custom headers with each request:
 ```bash
-python bamboo/bamboo.py -u "https://example.com" --headers "Authorization:Bearer YOUR_TOKEN" "Content-Type:application/json"
+python bambo/cli.py -u "https://example.com" --headers "Authorization:Bearer YOUR_TOKEN" "Content-Type:application/json"
 ```
 
 ### Using Different HTTP Methods and Data Payload
 
 Use different HTTP methods and send data:
 ```bash
-python bamboo/bamboo.py -u "https://api.example.com/data" -m POST --data '{"key":"value"}'
+python bambo/cli.py -u "https://api.example.com/data" -m POST --data '{"key":"value"}'
 ```
 
 ## Debugging
 
 Enable debug output to get more details:
 ```bash
-python bamboo/bamboo.py -u "https://example.com" --debug
+python bambo/cli.py -u "https://example.com" --debug
 ```
 
 ## Parameters Details
