@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "bamboo"
+name = "bambo"
 version = "0.1.0"
 description = ""
 authors = ["Subham Singh <subham.singh@hackerearth.com>"]
@@ -12,6 +12,10 @@ requests = "^2.31.0"
 ruff = "^0.1.9"
 prettytable = "^3.9.0"
 
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.3"
+requests-mock = "^1.11.0"
 
 [build-system]
 requires = ["poetry-core"]
