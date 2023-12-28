@@ -2,6 +2,9 @@
 
 Welcome to **Bamboo**, a lightweight and efficient tool for performing load testing on your HTTP and HTTPS services. This Python-based command line utility assists in bombarding your web applications with requests, helping you gauge performance under stress.
 
+![Screenshot from 2023-12-28 05-38-33](https://github.com/imsubhamsingh/bamboo/assets/24203687/075962b8-da71-4d13-a47d-41efca77fdfc)
+
+
 ## Features
 
 - Custom number of requests
