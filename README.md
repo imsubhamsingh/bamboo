@@ -12,6 +12,8 @@ Welcome to **Bamboo**, a lightweight and efficient tool for performing load test
 - Custom headers for each request
 - Optional SSL certificate verification
 - Detailed summary report using PrettyTable
+- Ability to set timeouts for requests
+- Ability to set delay between request
 
 ## Requirements
 
@@ -97,6 +99,8 @@ Parameter | Description
 -f, --file | File containing URLs to test (required if no URL is provided)
 -n, --num-requests | Number of requests to make (default is 5)
 -c, --num-concurrent | Number of concurrent requests (default is 1)
+-d, --delay | Delay between requests in seconds
+-t, --timeout | Timeout for each requests in seconds
 -m, --method | HTTP method to use (default is GET)
 --data | Data to send with the request
 --headers | Custom HTTP headers to set, format: key:value
