@@ -160,6 +160,10 @@ Parameter | Description
 
 Feel free to fork this repository and contribute to the development of Bamboo! If you find bugs or would like to suggest features, please create an issue in the repository.
 
+## Motivation
+
+Find more details about the Coding Challenge by John Crickett [Coding Challenge](https://codingchallenges.fyi/challenges/challenge-load-tester/)
+
 ## License
 
 Bamboo is released under the MIT License. Check out the LICENSE file for more information.
