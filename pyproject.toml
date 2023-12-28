@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bambo"
-version = "1.0.0"
+version = "1.0.1"
 description = "A lightweight and efficient tool for performing load testing on your HTTP and HTTPS services."
 authors = ["Subham Singh <subham.singh@hackerearth.com>"]
 readme = "README.md"
@@ -9,7 +9,6 @@ readme = "README.md"
 python = "^3.10"
 tdqm = "^0.0.1"
 requests = "^2.31.0"
-ruff = "^0.1.9"
 prettytable = "^3.9.0"
 
 
@@ -22,4 +21,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-bambo = 'bamboo:main'
+bambo = 'bambo.bamboo:main'

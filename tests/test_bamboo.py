@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, Mock
-from bamboo import HTTPLoadTester
+from bambo import HTTPLoadTester
 
 
 @pytest.fixture
