@@ -177,6 +177,7 @@ def main():
         print("Debug mode is ON")
         print(f"Args: {args}")
 
+    urls = []
     if args.url:
         urls = [args.url]
     elif args.file:
