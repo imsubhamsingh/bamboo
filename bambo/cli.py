@@ -1,5 +1,6 @@
 import argparse
 from bambo.core import HTTPLoadTester
+from bambo.monitor import WebsiteMonitor
 
 def main():
     parser = argparse.ArgumentParser(description="Bamboo - HTTP(S) Load Tester")
@@ -35,6 +36,12 @@ def main():
         "--no-verify", action="store_false", help="Disable SSL certificate verification"
     )
 
+    parser.add_argument(
+        "--monitor", 
+        action='store_true', 
+        help="Enable website monitoring"
+    )
+
     args = parser.parse_args()
 
     DEBUG = args.debug
@@ -62,6 +69,10 @@ def main():
         if args.headers
         else None
     )
+
+    if args.monitor:
+        monitor = WebsiteMonitor(urls)
+        monitor.start_monitoring()
 
     if DEBUG:
         print(f"URLs: {urls}")
