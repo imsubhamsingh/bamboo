@@ -1,13 +1,12 @@
 [tool.poetry]
 name = "bambo"
-version = "1.0.2"
+version = "1.0.3"
 description = "A lightweight and efficient tool for performing load testing on your HTTP and HTTPS services."
 authors = ["Subham Singh <geekysubham@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-tqdm = "^0.0.1"
 requests = "^2.31.0"
 prettytable = "^3.9.0"
 
