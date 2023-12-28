@@ -1,2 +1,10 @@
 http://example.com/page1
 http://example.com/page2
+http://example.com/page3
+http://example.com/page4
+http://example.com/page5
+http://example.net/page1
+http://example.net/page2
+http://example.org/page1
+http://testsite.com/home
+http://dummyurl.com/about

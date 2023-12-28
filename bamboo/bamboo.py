@@ -6,7 +6,9 @@ from prettytable import PrettyTable
 
 
 class HTTPLoadTester:
-    def __init__(self, urls, num_requests, num_concurrent, debug=False):
+    def __init__(
+        self, urls, num_requests, num_concurrent, debug=False, delay=0, timeout=10
+    ):
         self.urls = urls
         self.num_requests = num_requests
         self.num_concurrent = num_concurrent
@@ -14,6 +16,8 @@ class HTTPLoadTester:
         self.results = []
         self.errors = []
         self.debug = debug
+        self.delay = delay
+        self.timeout = timeout
 
     def make_request(self, url, method="GET", data=None, headers=None):
         times = []
@@ -22,21 +26,25 @@ class HTTPLoadTester:
 
         for _ in range(self.num_requests):
             try:
+                if self.delay > 0:
+                    time.sleep(self.delay)
+
                 start_time = time.time()
                 response = self.session.request(
-                    method,
-                    url,
-                    data=data,
-                    headers=headers,
-                    timeout=10,  # Timeout after 10 seconds
+                    method, url, data=data, headers=headers, timeout=self.timeout
                 )
                 times.append(time.time() - start_time)
                 status_codes.append(response.status_code)
+
             except requests.RequestException as e:
                 status_codes.append(None)
                 error_count += 1
                 if self.debug:
                     print(f"Request Error: {str(e)}")
+
+            # Add a delay between requests if specified
+            if self.delay > 0:
+                time.sleep(self.delay)
 
         return {
             "url": url,
@@ -78,17 +86,21 @@ class HTTPLoadTester:
         # Updating field names to include more details
         field_names = [
             "URL",
+            "Method",
             "Average Time (s)",
             "Min Time (s)",
             "Max Time (s)",
             "Requests",
-            "Status Codes",
+            "Successful Responses",
+            "Timed Out Requests",
             "Error Counts",
+            "Status Codes",
         ]
         table.field_names = field_names
 
         for result in self.results:
             url = result["url"]
+            method = result["methods"]
             if result["times"]:
                 avg_time = sum(result["times"]) / len(result["times"])
                 min_time = min(result["times"])
@@ -97,20 +109,26 @@ class HTTPLoadTester:
                 avg_time = min_time = max_time = "N/A"
 
             num_requests = len(result["times"])
+            successful_responses = len(
+                [code for code in result["status_codes"] if code is not None]
+            )
+            timed_out_requests = result["error_count"]
             status_codes = ", ".join(map(str, set(result["status_codes"])))
-            # Counting errors
-            error_counts = result.get("errors", {}).get("count", 0)
+            error_counts = result["error_count"]
 
             # Adding a row for each result with the new details
             table.add_row(
                 [
                     url,
+                    method,
                     f"{avg_time:.2f}",
                     f"{min_time:.2f}",
                     f"{max_time:.2f}",
                     num_requests,
-                    status_codes,
+                    successful_responses,
+                    timed_out_requests,
                     error_counts,
+                    status_codes,
                 ]
             )
 
@@ -131,6 +149,16 @@ def main():
         type=int,
         default=1,
         help="Number of concurrent requests",
+    )
+    parser.add_argument(
+        "-d", "--delay", type=float, default=0, help="Delay between requests in seconds"
+    )
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        type=int,
+        default=10,
+        help="Timeout for each requests in seconds",
     )
     parser.add_argument("-f", "--file", help="File containing URLs to test")
     parser.add_argument("-m", "--method", default="GET", help="HTTP method to use")
@@ -169,7 +197,9 @@ def main():
     if DEBUG:
         print(f"URLs: {urls}")
 
-    tester = HTTPLoadTester(urls, args.num_requests, args.num_concurrent, DEBUG)
+    tester = HTTPLoadTester(
+        urls, args.num_requests, args.num_concurrent, DEBUG, args.delay, args.timeout
+    )
 
     # Disabling SSL verification if no-verify flag is used
     tester.session.verify = args.no_verify
