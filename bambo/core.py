@@ -133,4 +133,3 @@ class HTTPLoadTester:
 
         # Printing the table with added details
         print(table)
-

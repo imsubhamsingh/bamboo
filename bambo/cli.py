@@ -2,6 +2,7 @@ import argparse
 from bambo.core import HTTPLoadTester
 from bambo.monitor import WebsiteMonitor
 
+
 def main():
     parser = argparse.ArgumentParser(description="Bamboo - HTTP(S) Load Tester")
     parser.add_argument("-u", "--url", help="URL to test")
@@ -37,9 +38,7 @@ def main():
     )
 
     parser.add_argument(
-        "--monitor", 
-        action='store_true', 
-        help="Enable website monitoring"
+        "--monitor", action="store_true", help="Enable website monitoring"
     )
 
     args = parser.parse_args()
@@ -49,8 +48,8 @@ def main():
         print("Debug mode is ON")
         print(f"Args: {args}")
         import logging
-        logging.basicConfig(level=logging.DEBUG)
 
+        logging.basicConfig(level=logging.DEBUG)
 
     urls = []
     if args.url:

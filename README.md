@@ -14,6 +14,7 @@ Welcome to **Bamboo**, a lightweight and efficient tool for performing load test
 - Detailed summary report using PrettyTable
 - Ability to set timeouts for requests
 - Ability to set delay between request
+- Monitors a list of websites too just like FreshPing
 
 ## Direct Installation (Pypi)
 
@@ -125,6 +126,14 @@ Enable debug output to get more details:
 python bambo/cli.py -u "https://example.com" --debug
 ```
 
+## Monitoring
+
+Enable site monitoring to check website health:
+
+```bash
+python bambo/cli.py -u "https://example.com" --monitor
+```
+
 ## Parameters Details
 
 Here's a list of all parameters you can use:
@@ -141,7 +150,8 @@ Parameter | Description
 --data | Data to send with the request
 --headers | Custom HTTP headers to set, format: key:value
 --no-verify | Disable SSL certificate verification
---debug | Enable DEBUG output
+--debug | Enable DEBUG mode
+--monitor | Enable website monitoring
 
 ## Contribution
 
