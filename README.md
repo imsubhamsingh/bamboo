@@ -15,6 +15,21 @@ Welcome to **Bamboo**, a lightweight and efficient tool for performing load test
 - Ability to set timeouts for requests
 - Ability to set delay between request
 
+## Direct Installation (Pypi)
+
+You can install **Bambo** directly from PyPI:
+
+```bash
+pip install bambo
+```
+Usage:  bambo <--parameters>
+
+```bash
+bambo -u "https://example.com"
+```
+Find more details about the package here: [Bambo on PyPI](https://pypi.org/project/bambo/)
+
+
 ## Requirements
 
 - Python 3.10 or higher
@@ -27,7 +42,7 @@ curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 
-## Installation
+## Source Installation
 
 Before running the tool, ensure you have Python installed on your system. You can then install the required packages using poetry:
 
@@ -40,11 +55,19 @@ poetry shell
 
 To use Bamboo, simply invoke the script from the command line with the desired options.
 
+```bash
+python bambo/bamboo.py < --parameters >
+```
+
 ### Basic Example
 
 Test a single URL with the default number of requests (5):
 ```bash
 python bamboo/bamboo.py -u "https://example.com"
+```
+or
+```
+bambo -u "https://example.com"
 ```
 
 ### With Custom Number of Requests
