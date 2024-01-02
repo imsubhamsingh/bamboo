@@ -10,6 +10,8 @@ python = "^3.10"
 requests = "^2.31.0"
 prettytable = "^3.9.0"
 
+[tool.poetry.dev-dependencies]
+flake8 = "*"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
